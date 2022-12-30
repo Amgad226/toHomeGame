@@ -21,3 +21,38 @@ var taxi = [
     [0,0 ,0,0 ,0  , 0, 0,0 ],
     [0,0 ,0,0 ,0  , 0, 0,0 ],
 ];
+
+
+
+// test user play 
+
+var state0 =new state(2000,100,0,null,null,0,0);
+
+// console.log(state0);
+
+var next0 = state0.getPossibleEdges()
+//  console.log(next0);
+
+var state1 = state0.goBus(next0[0][0])
+// console.log(state1);
+
+var next1= state1.getPossibleEdges();
+
+var state2 = state1.goBus(next1[0][1]);
+// console.log(state2);
+
+// var next2= state2.getPossibleEdges();
+
+// var state3= state2.goBus(next2[0][1])
+// // console.log(state3);
+
+// var next3  = state3.getPossibleEdges();
+
+// var state4  = state3.goWalk(next3[2][0])
+
+// while(state4.parents!=null){
+
+//     console.log(state4.parents);
+//     state4=state4.parents;
+// }
+// console.log(next3);

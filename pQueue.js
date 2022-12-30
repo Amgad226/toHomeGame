@@ -60,7 +60,7 @@ class PriorityQueue {
                 }
             }
 
-            if (this.items[i].priority > qElement.priority) {
+            else if (this.items[i].priority > qElement.priority) {
                
                 this.items.splice(i, 0, qElement);
                 contain = true;

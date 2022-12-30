@@ -82,3 +82,45 @@ function fillEdgeTaxi(){
 
 
 }
+
+
+class edge{
+    constructor(dist,waitingTime,v,to,name = null){
+        this.dist=dist;
+        this.waitingTime=waitingTime;
+        this.v=v;
+        this.to=to;
+        this.name=name;
+    }
+}
+class edgeWalk{
+    constructor(dist,to){
+        this.dist=dist;   
+        this.to=to;
+    }
+}
+ 
+
+//----------------------------------------------------
+
+var walk = [[],[],[],[],[],[],[],[]];
+function EdgeWalk(x,y,d){
+    walk[x][y]=new edgeWalk(d,y);
+ }
+fillEdgeWalk();
+ 
+
+//----------------------------------------------------
+var bus =[ [],[],[],[],[],[],[],[]];
+
+function EdgeBus(x,y,dist,waitingTime,v,name,){
+    bus[x][y]=new edge(dist,waitingTime,v,y,name);
+}
+fillEdgeBus();
+//----------------------------------------------------
+
+var taxi =[ [],[],[],[],[],[],[],[]];
+function EdgeTaxi(x,y,dist,waitingTime,v){
+    taxi[x][y]=new edge(dist,waitingTime,v,y);
+}
+fillEdgeTaxi();

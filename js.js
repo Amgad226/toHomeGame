@@ -1,65 +1,100 @@
-class edge{
-    constructor(dist,waitingTime,v,to,name = null){
-        this.dist=dist;
-        this.waitingTime=waitingTime;
-        this.v=v;
-        this.to=to;
-        this.name=name;
-    }
-}
-class edgeWalk{
-    constructor(dist,to){
-        this.dist=dist;   
-        this.to=to;
-    }
-}
- 
-
-//----------------------------------------------------
-
-var walk = [[],[],[],[],[],[],[],[]];
-function EdgeWalk(x,y,d){
-    walk[x][y]=new edgeWalk(d,y);
- }
-fillEdgeWalk();
- 
-
-//----------------------------------------------------
-var bus =[ [],[],[],[],[],[],[],[]];
-
-function EdgeBus(x,y,dist,waitingTime,v,name,){
-    bus[x][y]=new edge(dist,waitingTime,v,y,name);
-}
-fillEdgeBus();
-//----------------------------------------------------
-
-var taxi =[ [],[],[],[],[],[],[],[]];
-function EdgeTaxi(x,y,dist,waitingTime,v){
-    bus[x][y]=new edge(dist,waitingTime,v,y);
-}
-fillEdgeTaxi();
-
-
-//----------------------------------------------------
-
+var vertix = ['همك','مينا','عباسسين','كراج','جسر','شارع الثورة','حامييش','بيت']
+var Transportation= ['مشي','مكرو','تكسي' ]
 class state{
-    constructor(money,helth,time, lastState , lastVehicle,station){
-        this.money = money;
-        this.helth = helth;
-        this.time = time;
-        this.lastState = lastState;
-        this.lastVehicle = lastVehicle;
+    constructor(money,health,time, parents , lastVehicle,station,cost=0){
         this.station = station;
-    }
+        this.stationName = vertix[this.station]
+        this.money = money;
+        this.health = health;
+        this.time = time;
+        this.parents = parents;
+        this.lastVehicle = lastVehicle;
+        this.lastVehicleName=Transportation[this.lastVehicle]
+        this.cost=cost; 
+        this.h=0
 
-    getPossibleState()
+    }
+    getPossibleStatesByBus(){
+        var statesArray=[];
+        for (let x = 0; x < bus[this.station].length; x++) {
+
+            if(bus[this.station][x] != null ){
+                if(this.money -400 <0){
+                    continue;
+                  }
+                var m =this.money -400;
+                var h= this.health-(5*bus[this.station][x].dist)
+                var t = (this.time + (bus[this.station][x].dist/bus[this.station][x].v)*60);
+                var parent= this;
+                var lastVehicle= 1;
+                var cost = this.cost +1; 
+                var station = bus[this.station][x].to;
+                statesArray.push(new state(m,h,t,parent,lastVehicle,station,cost));
+            }
+
+        }
+        return statesArray
+    }
+    getPossibleStatesByTaxi(){
+        var statesArray=[];
+        // console.log(this.station);
+        for (let x = 0; x < taxi[this.station].length; x++) {
+            // console.log(22);
+            if(taxi[this.station][x] != null ){
+          if(1000*taxi[this.station][x].dist>this.money){
+            continue;
+          }
+                var m =this.money -(1000*taxi[this.station][x].dist);
+                // console.log(1000*taxi[this.station][x].dist,'taxi cost ');
+                var h= this.health+(5*taxi[this.station][x].dist)
+                var t = (this.time + (taxi[this.station][x].dist/taxi[this.station][x].v)*60);
+                var parent= this;
+                var lastVehicle= 2;
+                var station = taxi[this.station][x].to;
+                var cost = this.cost +1; 
+                
+                statesArray.push(new state(m,h,t,parent,lastVehicle,station,cost));
+            }
+
+        }
+        return statesArray
+    }
+    getPossibleStatesByWalk(){
+        var statesArray=[];
+        // console.log(this.station);
+        // console.log(this);
+
+        for (let x = 0; x < walk[this.station].length; x++) {
+            // console.log('enter');
+            // console.log( walk[this.station].length,22);
+            if(walk[this.station][x] != null ){
+                // if(this.health  <0){
+                //     continue;
+                //   }
+                  var m =this.money ;
+                  var h= this.health-(10*walk[this.station][x].dist)
+                  var t = (this.time + (walk[this.station][x].dist/5.5)*60);
+                  var parent= this;
+                  var lastVehicle= 0;
+                  var station = walk[this.station][x].to;
+                  var cost = this.cost+1
+          
+                  statesArray.push(new state(m,h,t,parent,lastVehicle,station,cost));
+          
+                 
+            }
+
+        }
+        return statesArray
+    }
+    getPossibleEdges()
     {
         var busArray = [] ;
         for (let x = 0; x < bus[this.station].length; x++) {
 
             if(bus[this.station][x] != null ){
                 // bus[this.station][x].to=x;
-                console.log(111,bus[this.station][x]);
+                // console.log(111,bus[this.station][x]);
                 busArray.push(bus[this.station][x] );
             }
             
@@ -85,142 +120,214 @@ class state{
         return [busArray,taxiArray,walkArray] ;
     
     }
+
     goBus(edge)
     {
-console.log( edge);
+        // console.log( edge);
         var m =this.money -400;
-        var h= this.helth-(5*edge.dist)
+        var h= this.health-(5*edge.dist)
         var t = (this.time + (edge.dist/edge.v)*60);
-        var lastS= this;
+        var parent= this;
         var lastVehicle= 1;
-        // var lastVehicle= this.vehicle;
+        var cost = this.cost+1
         var station = edge.to;
-        // var vehicle =1
-
-
-
-        return new state(m,h,t,lastS,lastVehicle,station)
+        return new state(m,h,t,parent,lastVehicle,station,cost)
     }
     goTaxi(edge)
     {
     
         var m =this.money -(1000*edge.dist);
-        var h= this.helth+(5*edge.dist)
+        var h= this.health+(5*edge.dist)
         var t = (this.time + (edge.dist/edge.v)*60);
-        var lastS= this;
+        var parent= this;
         var lastVehicle= 2;
-        // var lastVehicle= this.vehicle;
         var station = edge.to;
-        // var vehicle =1
+        var cost = this.cost+1
 
-        return new state(m,h,t,lastS,lastVehicle,station)
+        return new state(m,h,t,parent,lastVehicle,station,cost)
     }
     goWalk(edge)
     {
-    // console.log(edge);
         var m =this.money ;
-        var h= this.helth-(10*edge.dist)
-
+        var h= this.health-(10*edge.dist)
         var t = (this.time + (edge.dist/5.5)*60);
-        var lastS= this;
+        var parent= this;
         var lastVehicle= 0;
-        // var lastVehicle= this.vehicle;
         var station = edge.to;
-        // var vehicle =1
-
-
-
-        return new state(m,h,t,lastS,lastVehicle,station)
+        var cost = this.cost+1
+        return new state(m,h,t,parent,lastVehicle,station,cost)
     }
 
-    // UCS() {
-    //   var structureArray = _.cloneDeep(structureArrayy);
-    //   var isVi = 0
-    
-    //   var hashedArray ;hashedArray = hashArray(structureArray.element.array);
-    //   for (let i = 0; i < visited.length; i++) {
-    //     if (hashedArray==visited[i]) {
-    //       isVi++;
-    //       break;
-    //     }    
-    //   }
-    //   if (isVi == 0) {
-    //     visited.push(hashedArray)
-    //   }
-    
-    //   // if (isEqualArray(structureArray.element.array, ttWin) == 0) {
-    //     if (hashedTTWin==hashedArray) {
-    //     var path = [...structureArray.element.perant, structureArray.element.array,]
-    //     console.log(path, 'path is');
-    //     console.log(path.length, 'path');
-    //     console.log(visited.length, 'visitied');
-    //     console.log(visited, 'visitied node ');
-    //     console.log(structureArray.element.cost, 'cost');
-    //     console.log('win');
-    //     return true
-    //   }
-    
-    //   var sons = get_next_state(structureArray.element);
-    //   for (let i = 0; i < sons[0].length; i++) {
-    //     sons[0][i].perant = (structureArray.element.perant?.length > 0 ? [...structureArray.element.perant, structureArray.element.array] : [structureArray.element.array])
-    //     sons[0][i].cost = structureArray.element.cost + 1;
-    
-    //   var hashedSon;hashedSon = hashArray(sons[0][i].array);
-    //   for (let i = 0; i < visited.length; i++) {
-    //       var c = 0
-    //     if ( hashedSon==visited[i]) {
-    //           c++;
-    //           break;
-    //     }    
-    //   }
-    
-    //     if (c == 0) {
-    //       pQueue.enqueue(sons[0][i], sons[0][i].cost)
-    //     }
-    
-    //   }
-    
-    //   if (!pQueue.isEmpty()) {
-    //     UCS(pQueue.dequeue());
-    //   }
-    
-    // }
+    checkWin(){
+      if (this.station==7 )
+          return true ;
+
+      return false ; 
+    }
+    hashState(){
+      var string=JSON.stringify(this)
+      var hash = 0;
+      for (var i = 0; i < string.length; i++) {
+          var code = string.charCodeAt(i);
+          hash = ((hash<<5)-hash)+code;
+          hash = hash & hash; // Convert to 32bit integer
+      }
+      return hash;
+    }
 
 }      
 
-var state0 =new state(2000,100,0,null,null,0);
-// state0.UCS()
-
-
-
             
-var vertix = ['همك','مينا','عباسسين','كراج','جسر','شارع الثورة','حامييش','بيت']
- var state0 =new state(2000,100,0,null,null,0);
-// console.log(state0);
+ var state0 =new state(2000,100,0,null,null,0,0);
 
- var next0 = state0.getPossibleState()
- console.log(next0);
 
-// var state1 = state0.goBus(next0[0][0])
-// console.log(state1);
+function chackInVisited(hashedState){
+  for (let i = 0; i < visited.length; i++) {
+    if ( hashedState==visited[i]) {
+         return true
+    }    
+  }
+  return false 
+}
+  
+  var visited= [] ; 
+  var pQueue = new PriorityQueue();
+  var myState =state0;
 
-// var next1= state1.getPossibleState();
+function UCS(state) {
 
-// var state2 = state1.goBus(next1[0][1]);
-// // console.log(state2);
+    console.log(state.element);
+    var isVi = 0
+    myState= state.element
+    var hashedArray = state.element.hashState();
 
-// var next2= state2.getPossibleState();
+    if(!chackInVisited(hashedArray)){
+      visited.push(hashedArray)
+    }
+  
+    if (state.element.checkWin()) {
+      console.log('\n-----------------------------win---------------------------------\n \n');
+        console.log(isVi,'IsvI');
+        console.log(visited.length, 'visitied');
+        console.log(state.element.cost, 'cost');
+        console.log('\n my state is :',myState,'\n');
+      console.log('\n-----------------------------win---------------------------------\n \n');
+      return true
+    }
+    if(state.element.money<400){
+    console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
+        console.log('end money',state.element.money );
+        console.log(visited.length, 'visitied');
+        console.log(state.element.cost, 'cost');
+        console.log('\n my state is :',myState,'\n');
+    console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
+        return true
+    }
 
-// var state3= state2.goBus(next2[0][1])
-// // console.log(state3);
+    if(state.element.health<=0){
+    console.log('\n********************************health********************************\n \n');
+        console.log('end health :', state.element.health );
+        console.log(visited.length, 'visitied');
+        console.log(state.element.cost, 'cost');
+        console.log('\n my state is :',myState,'\n');
+    console.log('\n********************************health********************************\n \n');
+      return true
+    }
+    
+    var sons = state.element.getPossibleStatesByBus()
+    // var sons = state.element.getPossibleStatesByTaxi()
+    // var sons = state.element.getPossibleStatesByWalk()
+    
+    for (let i = 0; i < sons.length; i++) {
+        sons[i].parents = (state.element.parents?.length > 0 ? [...state.element.parents, state.element] : [state.element])
+        sons[i].cost = state.element.cost + 1;
 
-// var next3  = state3.getPossibleState();
+        var hashedSon = sons[i].hashState();
 
-// var state4  = state3.goWalk(next3[2][0])
+        if( ! chackInVisited(hashedSon)){
+          pQueue.enqueueStar(sons[i],  sons[i].cost + sons[i].h     ,sons[i].h)
+        }
+    }
+  
+    if (!pQueue.isEmpty()) {
+      UCS(pQueue.dequeue());
+    }
+  
+}
 
-// while(state4.lastState!=null){
+function heuristic(state){
+  var number =0 ;
+  //some operations on state 
+  return number 
+}
 
-//     console.log(state4.lastState);
-//     state4=state4.lastState;
-// }
-// console.log(next3);
+function aStar(state) {
+
+  console.log(state.element);
+  var isVi = 0
+  myState= state.element
+  var hashedArray = state.element.hashState();
+  
+  if(! chackInVisited(hashedArray)){
+    visited.push(hashedArray)
+  }
+
+  if (state.element.checkWin()) {
+    console.log('\n-----------------------------win---------------------------------\n \n');
+      console.log(isVi,'IsvI');
+      console.log(visited.length, 'visitied');
+      console.log(state.element.cost, 'cost');
+      console.log('\n my state is :',myState,'\n');
+    console.log('\n-----------------------------win---------------------------------\n \n');
+    return true
+  }
+  if(state.element.money<400){
+  console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
+      console.log('end money',state.element.money );
+      console.log(visited.length, 'visitied');
+      console.log(state.element.cost, 'cost');
+      console.log('\n my state is :',myState,'\n');
+  console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
+      return true
+  }
+
+  if(state.element.health<=0){
+  console.log('\n********************************health********************************\n \n');
+      console.log('end health :', state.element.health );
+      console.log(visited.length, 'visitied');
+      console.log(state.element.cost, 'cost');
+      console.log('\n my state is :',myState,'\n');
+  console.log('\n********************************health********************************\n \n');
+    return true
+  }
+  
+  var sons = state.element.getPossibleStatesByBus()
+  // var sons = state.element.getPossibleStatesByTaxi()
+  // var sons = state.element.getPossibleStatesByWalk()
+
+  // sons= [...state.element.getPossibleStatesByBus(),...state.element.getPossibleStatesByTaxi(),...state.element.getPossibleStatesByWalk()]//all steps
+  // console.log(sons,'merage sons');
+
+  for (let i = 0; i < sons.length; i++) {
+        sons[i].parents = (state.element.parents?.length > 0 ? [...state.element.parents, state.element] : [state.element])
+        sons[i].cost = state.element.cost + 1;
+        sons[i].h = heuristic(sons[i]);
+
+        var hashedSon = sons[i].hashState();
+    
+        if(! chackInVisited(hashedSon)){
+          pQueue.enqueueStar(sons[i],  sons[i].cost + sons[i].h     ,sons[i].h)
+        }
+  }
+
+  if (!pQueue.isEmpty()) {
+    aStar(pQueue.dequeue());
+  }
+
+}
+
+
+
+  // UCS( {element:state0,priority:0 })
+  aStar( {element:state0,priority:0 })
+
