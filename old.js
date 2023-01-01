@@ -56,3 +56,5 @@ var state2 = state1.goBus(next1[0][1]);
 //     state4=state4.parents;
 // }
 // console.log(next3);
+
+

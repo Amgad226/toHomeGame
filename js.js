@@ -1,186 +1,18 @@
 var vertix = ['همك','مينا','عباسسين','كراج','جسر','شارع الثورة','حامييش','بيت']
 var Transportation= ['مشي','مكرو','تكسي' ]
-class state{
-    constructor(money,health,time, parents , lastVehicle,station,cost=0){
-        this.station = station;
-        this.stationName = vertix[this.station]
-        this.money = money;
-        this.health = health;
-        this.time = time;
-        this.parents = parents;
-        this.lastVehicle = lastVehicle;
-        this.lastVehicleName=Transportation[this.lastVehicle]
-        this.cost=cost; 
-        this.h=0
-
-    }
-    getPossibleStatesByBus(){
-        var statesArray=[];
-        for (let x = 0; x < bus[this.station].length; x++) {
-
-            if(bus[this.station][x] != null ){
-                if(this.money -400 <0){
-                    continue;
-                  }
-                var m =this.money -400;
-                var h= this.health-(5*bus[this.station][x].dist)
-                var t = (this.time + (bus[this.station][x].dist/bus[this.station][x].v)*60);
-                var parent= this;
-                var lastVehicle= 1;
-                var cost = this.cost +1; 
-                var station = bus[this.station][x].to;
-                statesArray.push(new state(m,h,t,parent,lastVehicle,station,cost));
-            }
-
-        }
-        return statesArray
-    }
-    getPossibleStatesByTaxi(){
-        var statesArray=[];
-        // console.log(this.station);
-        for (let x = 0; x < taxi[this.station].length; x++) {
-            // console.log(22);
-            if(taxi[this.station][x] != null ){
-          if(1000*taxi[this.station][x].dist>this.money){
-            continue;
-          }
-                var m =this.money -(1000*taxi[this.station][x].dist);
-                // console.log(1000*taxi[this.station][x].dist,'taxi cost ');
-                var h= this.health+(5*taxi[this.station][x].dist)
-                var t = (this.time + (taxi[this.station][x].dist/taxi[this.station][x].v)*60);
-                var parent= this;
-                var lastVehicle= 2;
-                var station = taxi[this.station][x].to;
-                var cost = this.cost +1; 
-                
-                statesArray.push(new state(m,h,t,parent,lastVehicle,station,cost));
-            }
-
-        }
-        return statesArray
-    }
-    getPossibleStatesByWalk(){
-        var statesArray=[];
-        // console.log(this.station);
-        // console.log(this);
-
-        for (let x = 0; x < walk[this.station].length; x++) {
-            // console.log('enter');
-            // console.log( walk[this.station].length,22);
-            if(walk[this.station][x] != null ){
-                // if(this.health  <0){
-                //     continue;
-                //   }
-                  var m =this.money ;
-                  var h= this.health-(10*walk[this.station][x].dist)
-                  var t = (this.time + (walk[this.station][x].dist/5.5)*60);
-                  var parent= this;
-                  var lastVehicle= 0;
-                  var station = walk[this.station][x].to;
-                  var cost = this.cost+1
-          
-                  statesArray.push(new state(m,h,t,parent,lastVehicle,station,cost));
-          
-                 
-            }
-
-        }
-        return statesArray
-    }
-    getPossibleEdges()
-    {
-        var busArray = [] ;
-        for (let x = 0; x < bus[this.station].length; x++) {
-
-            if(bus[this.station][x] != null ){
-                // bus[this.station][x].to=x;
-                // console.log(111,bus[this.station][x]);
-                busArray.push(bus[this.station][x] );
-            }
-            
-        }
-        var taxiArray = [] ;
-        for (let x = 0; x < taxi[this.station].length; x++) {
-
-            if(taxi[this.station][x] != 0 ){
-                // taxi[this.station][x].to=x;
-                taxiArray.push(taxi[this.station][x] );
-
-            }
-            
-        }
-        var walkArray = [] ;
-        for (let x = 0; x < walk[this.station].length; x++) {
-
-            if(walk[this.station][x] != null ){
-                walkArray.push(walk[this.station][x] );
-            }
-            
-        }
-        return [busArray,taxiArray,walkArray] ;
-    
-    }
-
-    goBus(edge)
-    {
-        // console.log( edge);
-        var m =this.money -400;
-        var h= this.health-(5*edge.dist)
-        var t = (this.time + (edge.dist/edge.v)*60);
-        var parent= this;
-        var lastVehicle= 1;
-        var cost = this.cost+1
-        var station = edge.to;
-        return new state(m,h,t,parent,lastVehicle,station,cost)
-    }
-    goTaxi(edge)
-    {
-    
-        var m =this.money -(1000*edge.dist);
-        var h= this.health+(5*edge.dist)
-        var t = (this.time + (edge.dist/edge.v)*60);
-        var parent= this;
-        var lastVehicle= 2;
-        var station = edge.to;
-        var cost = this.cost+1
-
-        return new state(m,h,t,parent,lastVehicle,station,cost)
-    }
-    goWalk(edge)
-    {
-        var m =this.money ;
-        var h= this.health-(10*edge.dist)
-        var t = (this.time + (edge.dist/5.5)*60);
-        var parent= this;
-        var lastVehicle= 0;
-        var station = edge.to;
-        var cost = this.cost+1
-        return new state(m,h,t,parent,lastVehicle,station,cost)
-    }
-
-    checkWin(){
-      if (this.station==7 )
-          return true ;
-
-      return false ; 
-    }
-    hashState(){
-      var string=JSON.stringify(this)
-      var hash = 0;
-      for (var i = 0; i < string.length; i++) {
-          var code = string.charCodeAt(i);
-          hash = ((hash<<5)-hash)+code;
-          hash = hash & hash; // Convert to 32bit integer
-      }
-      return hash;
-    }
-
-}      
-
-            
- var state0 =new state(2000,100,0,null,null,0,0);
 
 
+var state0 =new state(2000,100,0,null,null,0,0);
+
+  // var state7 = new state(0,0,0,null,null,7,0)
+  function a (state){
+    var  sons= [
+      ...state.getPossibleStatesByTaxi(),
+      ...state.getPossibleStatesByBus(),
+      ...state.getPossibleStatesByWalk()
+    ]
+    console.log(sons);
+  }
 function chackInVisited(hashedState){
   for (let i = 0; i < visited.length; i++) {
     if ( hashedState==visited[i]) {
@@ -194,77 +26,250 @@ function chackInVisited(hashedState){
   var pQueue = new PriorityQueue();
   var myState =state0;
 
-function UCS(state) {
-
-    console.log(state.element);
-    var isVi = 0
-    myState= state.element
-    var hashedArray = state.element.hashState();
-
-    if(!chackInVisited(hashedArray)){
-      visited.push(hashedArray)
-    }
-  
-    if (state.element.checkWin()) {
-      console.log('\n-----------------------------win---------------------------------\n \n');
-        console.log(isVi,'IsvI');
-        console.log(visited.length, 'visitied');
-        console.log(state.element.cost, 'cost');
-        console.log('\n my state is :',myState,'\n');
-      console.log('\n-----------------------------win---------------------------------\n \n');
-      return true
-    }
-    if(state.element.money<400){
-    console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
-        console.log('end money',state.element.money );
-        console.log(visited.length, 'visitied');
-        console.log(state.element.cost, 'cost');
-        console.log('\n my state is :',myState,'\n');
-    console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
-        return true
-    }
-
-    if(state.element.health<=0){
-    console.log('\n********************************health********************************\n \n');
-        console.log('end health :', state.element.health );
-        console.log(visited.length, 'visitied');
-        console.log(state.element.cost, 'cost');
-        console.log('\n my state is :',myState,'\n');
-    console.log('\n********************************health********************************\n \n');
-      return true
-    }
-    
-    var sons = state.element.getPossibleStatesByBus()
-    // var sons = state.element.getPossibleStatesByTaxi()
-    // var sons = state.element.getPossibleStatesByWalk()
-    
-    for (let i = 0; i < sons.length; i++) {
-        sons[i].parents = (state.element.parents?.length > 0 ? [...state.element.parents, state.element] : [state.element])
-        sons[i].cost = state.element.cost + 1;
-
-        var hashedSon = sons[i].hashState();
-
-        if( ! chackInVisited(hashedSon)){
-          pQueue.enqueueStar(sons[i],  sons[i].cost + sons[i].h     ,sons[i].h)
-        }
-    }
-  
-    if (!pQueue.isEmpty()) {
-      UCS(pQueue.dequeue());
-    }
-  
-}
-
-function heuristic(state){
+function heuristicTime(state){
+  console.log('---------@start heuristicTime@----------- \n \n   ');
   var number =0 ;
-  //some operations on state 
-  return number 
+  // var temp=state;
+  var station= state.station
+  console.log(station);
+  var temp = state
+    while(state!=null||station!=  7) {
+      // while(station!=  7) {
+    
+    console.log('while');
+ 
+    console.log(temp,'first temp');
+    var sons= [...temp.getPossibleStatesByTaxi(),...temp.getPossibleStatesByBus(),...temp.getPossibleStatesByWalk()]//all steps
+
+ 
+    console.log(sons);
+    if(sons[0]==null)
+     {
+      number =temp.time 
+      break;
+     }
+    temp=sons[0]; 
+     
+     console.log('sons',sons);
+  
+    
+    console.log('start for');
+      for (let i = 0; i < sons.length; i++) {
+        console.log(temp.time,'temp');
+        console.log(sons[0].time,'soms[0]');
+        console.log(temp,'temp');
+        console.log(sons[0],'soms[0]');
+        console.log('for loop');
+        if(temp.time>sons[i].time)  {
+          console.log('goal');
+          temp=sons[i];
+        }
+      }
+    console.log('end for');
+
+  number=temp.time
+  console.log('end while');
+  }  
+  console.log(' \n \n    ',number,' @@@@@ End heuristicTime @@@@@');
+  return number ;
 }
+function heuristicHealth(state){
+  console.log('---------@start heuristicTime@----------- \n \n   ');
+  var number =0 ;
+  // var temp=state;
+  var station= state.station
+  console.log(station);
+  var temp = state
+    while(state!=null||station!=  7) {
+      // while(station!=  7) {
+        
+    console.log('while');
+     
+    console.log(temp,'first temp');
+    var sons= [...temp.getPossibleStatesByTaxi(),...temp.getPossibleStatesByBus(),...temp.getPossibleStatesByWalk()]//all steps
 
-function aStar(state) {
+ 
+    console.log(sons);
+    if(sons[0]==null)
+     {
+      number =temp.health 
+      break;
+     }
+    temp=sons[0]; 
+     
+     console.log('sons',sons);
+  
+    
+    console.log('start for');
+      for (let i = 0; i < sons.length; i++) {
+        console.log(temp.time,'temp');
+        console.log(sons[0].time,'soms[0]');
+        console.log(temp,'temp');
+        console.log(sons[0],'soms[0]');
+        console.log('for loop');
+        if(temp.health<sons[i].health)  {
+          console.log('goal');
+          temp=sons[i];
+        }
+      }
+    console.log('end for');
 
-  console.log(state.element);
-  var isVi = 0
+  number=temp.health
+  console.log('end while');
+  }  
+  console.log(' \n \n    ',number,' @@@@@ End heuristicTime @@@@@');
+  return number ;
+}
+function heuristicMoney(state){
+  console.log('---------@start heuristic MONEY@----------- \n \n   ');
+  var number =0 ;
+  // var temp=state;
+  var station= state.station
+  console.log(station);
+  var temp = state
+    while(state!=null||station!=  7) {
+      // while(station!=  7) {
+        
+    console.log('while');
+     
+    console.log(temp,'first temp');
+    var sons= [...temp.getPossibleStatesByTaxi(),...temp.getPossibleStatesByBus(),...temp.getPossibleStatesByWalk()]//all steps
+
+ 
+    console.log(sons);
+    if(sons[0]==null)
+     {
+      number =temp.money 
+      // console.log(temp , ' temp is is isisisisisi');
+      // console.log(number , ' number is is isisisisisi');
+      break;
+     }
+    temp=sons[0]; 
+     
+    //  console.log('sons',sons);  
+    // console.log('start for');
+      for (let i = 0; i < sons.length; i++) {
+        // console.log(temp.time,'temp');
+        // console.log(sons[0].time,'soms[0]');
+        // console.log(temp,'temp');
+        // console.log(sons[0],'soms[0]');
+        // console.log('for loop');
+        if(temp.money<sons[i].money)  {
+          // console.log('goal');
+          temp=sons[i];
+        }
+      }
+    // console.log('end for');
+
+  number+=temp.money
+  // console.log('end while');
+  }  
+  // console.log(' \n \n    ',number,' @@@@@ End heuristic MONEY @@@@@');
+  return number ;
+}
+function heuristicThree(state){
+  console.log('---------@start heuristic THREE@----------- \n \n   ');
+  var number =0 ;
+  // var temp=state;
+  var station= state.station
+  console.log(station);
+  var temp = state
+    while(state!=null||station!=  7) {
+      // while(station!=  7) {
+    
+    // console.log('while');
+ 
+    // console.log(temp,'first temp');
+    var sons= [...temp.getPossibleStatesByTaxi(),...temp.getPossibleStatesByBus(),...temp.getPossibleStatesByWalk()]//all steps
+
+ 
+    console.log(sons);
+    if(sons[0]==null)
+     {
+      number =temp.time+temp.money+temp.health 
+      break;
+     }
+    temp=sons[0]; 
+     
+    //  console.log('sons',sons);
+  
+    
+    // console.log('start for');
+      for (let i = 0; i < sons.length; i++) {
+        // console.log(temp.time,'temp');
+        // console.log(sons[0].time,'soms[0]');
+        // console.log(temp,'temp');
+        // console.log(sons[0],'soms[0]');
+        // console.log('for loop');
+        if(temp.health<sons[i].health &&temp.money<sons[i].money&& temp.time>   sons[i].time  )  {
+          alert()
+          console.log('goal');
+          temp=sons[i];
+        }
+      }
+    // console.log('end for');
+
+  number=temp.time+temp.money+temp.health
+  // console.log('end while');
+  }  
+  console.log(' \n \n    ',number,' @@@@@ End heuristic THREE @@@@@');
+  return number ;
+}
+function checkStop(state,heuristicName){
+  // alert(heuristicName)
+  if (state.element.checkWin()) {
+
+    if(heuristicName=='time'){
+
+      // alert()
+      winArray.enqueue(state.element,state.element.time)
+    }
+    else if(heuristicName=='money'){
+// alert()
+
+      winArray.enqueue(state.element,state.element.money)
+    }
+    else if(heuristicName=='health')
+    winArray.enqueue(state.element, state.element.health)
+    else if (heuristicName== 'three')
+    winArray.enqueue(state.element,  state.element.money+state.element.health)
+   
+    console.log('\n-----------------------------win---------------------------------\n \n');
+      console.log(visited.length, 'visitied');
+      console.log(state.element.cost, 'cost');
+      console.log('\n my state is :',[...myState.parents,myState],'\n');
+
+    console.log('\n-----------------------------win---------------------------------\n \n');
+    return true
+  }
+  
+  if(state.element.money<400){
+  console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
+      console.log('end money',state.element.money );
+      console.log(visited.length, 'visitied');
+      console.log(state.element.cost, 'cost');
+      console.log('\n my state is :',[...myState.parents,myState],'\n');
+  console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
+      return true
+  }
+  if(state.element.health<=0){
+  console.log('\n********************************health********************************\n \n');
+      console.log('end health :', state.element.health );
+      console.log(visited.length, 'visitied');
+      console.log(state.element.cost, 'cost');
+      // console.log('\n my state is :',state,'\n');
+      console.log('\n my state is :',[...myState.parents,myState],'\n');
+
+  console.log('\n********************************health********************************\n \n');
+  // break;
+    return true
+  }
+}
+var winArray= new PriorityQueue()
+function aStar(state , heuristicName) {
+// alert(heuristicName)
+  console.log('******************************************start aStar*****************************************************');
+
   myState= state.element
   var hashedArray = state.element.hashState();
   
@@ -272,62 +277,93 @@ function aStar(state) {
     visited.push(hashedArray)
   }
 
-  if (state.element.checkWin()) {
-    console.log('\n-----------------------------win---------------------------------\n \n');
-      console.log(isVi,'IsvI');
-      console.log(visited.length, 'visitied');
-      console.log(state.element.cost, 'cost');
-      console.log('\n my state is :',myState,'\n');
-    console.log('\n-----------------------------win---------------------------------\n \n');
-    return true
-  }
-  if(state.element.money<400){
-  console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
-      console.log('end money',state.element.money );
-      console.log(visited.length, 'visitied');
-      console.log(state.element.cost, 'cost');
-      console.log('\n my state is :',myState,'\n');
-  console.log('\n++++++++++++++++++++++++++++++++money++++++++++++++++++++++++++++++++\n \n');
-      return true
+
+  if(checkStop(state,heuristicName)){
+    // return true
+    // console.log('');
+
   }
 
-  if(state.element.health<=0){
-  console.log('\n********************************health********************************\n \n');
-      console.log('end health :', state.element.health );
-      console.log(visited.length, 'visitied');
-      console.log(state.element.cost, 'cost');
-      console.log('\n my state is :',myState,'\n');
-  console.log('\n********************************health********************************\n \n');
-    return true
-  }
   
-  var sons = state.element.getPossibleStatesByBus()
-  // var sons = state.element.getPossibleStatesByTaxi()
-  // var sons = state.element.getPossibleStatesByWalk()
-
-  // sons= [...state.element.getPossibleStatesByBus(),...state.element.getPossibleStatesByTaxi(),...state.element.getPossibleStatesByWalk()]//all steps
+  var sons= [
+    ...state.element.getPossibleStatesByTaxi(),
+    ...state.element.getPossibleStatesByBus(),
+    ...state.element.getPossibleStatesByWalk()
+  ]
   // console.log(sons,'merage sons');
-
+  
   for (let i = 0; i < sons.length; i++) {
-        sons[i].parents = (state.element.parents?.length > 0 ? [...state.element.parents, state.element] : [state.element])
+        sons[i].parents = (
+                            state.element.parents?.length > 0 
+                            ? [...state.element.parents, state.element] 
+                            : [state.element]
+                          )
         sons[i].cost = state.element.cost + 1;
-        sons[i].h = heuristic(sons[i]);
+
+        if(heuristicName=='time')
+        sons[i].h =heuristicTime(sons[i]);
+        else if(heuristicName=='money')
+        sons[i].h =heuristicMoney(sons[i]);
+        else if(heuristicName=='health')
+        sons[i].h =heuristicHealth(sons[i]);
+        else if (heuristicName=='three')
+        sons[i].h =heuristicThree(sons[i]);
+
+        // console.log(sons[i].h ,'hhhhhhhhhhhhhhhhhhhhhh');
+
 
         var hashedSon = sons[i].hashState();
-    
         if(! chackInVisited(hashedSon)){
           pQueue.enqueueStar(sons[i],  sons[i].cost + sons[i].h     ,sons[i].h)
         }
   }
 
   if (!pQueue.isEmpty()) {
-    aStar(pQueue.dequeue());
+    aStar(pQueue.dequeue(),heuristicName);
   }
+  else {
+    // alert()
+    console.log('\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
+    console.log('----------------------------------------------******----------------------------------------------');
+    
+    console.log(winArray);
+
+    if(heuristicName=='time'){
+      console.log(winArray.front());
+      console.log([...winArray.front().element.parents,winArray.front().element]);
+      console.log('time: ',winArray.front().element.time);
+      console.log('money: ',winArray.front().element.money);
+      console.log('health: ',winArray.front().element.health);
+    }
+
+   
+    else if(heuristicName=='health'){
+    console.log(winArray.rear());
+    console.log([...winArray.rear().element.parents,winArray.rear().element]);
+    console.log('time: ',winArray.rear().element.time);
+    console.log('money: ',winArray.rear().element.money);
+    console.log('health: ',winArray.rear().element.health);
+  }
+  else if(heuristicName=='money')
+  {
+    console.log(winArray.rear());
+    console.log([...winArray.rear().element.parents,winArray.rear().element]);
+    console.log('time: ',winArray.rear().element.time);
+    console.log('money: ',winArray.rear().element.money);
+    console.log('health: ',winArray.rear().element.health);
+  }
+    else if (heuristicName=='three'){
+    console.log('هبد');
+    console.log(winArray.rear());
+    console.log([...winArray.rear().element.parents,winArray.rear().element]);
+    console.log('time: ',winArray.rear().element.time);
+    console.log('money: ',winArray.rear().element.money);
+    console.log('health: ',winArray.rear().element.health);
+  }
+  console.log('----------------------------------------------******----------------------------------------------');
+
+  console.log('\n\n\n\n\n\n\n\n\n\n');
+    }
 
 }
-
-
-
-  // UCS( {element:state0,priority:0 })
-  aStar( {element:state0,priority:0 })
 
